@@ -515,9 +515,10 @@ async function loadPhotos() {
     if (!response.ok) throw new Error("Could not load the photo archive");
     const paths = await response.json();
     allPhotos = paths.map((src) => {
-      const filename = decodeURIComponent(src.split("/").pop()).normalize("NFC");
+      const normalizedSrc = src.normalize("NFC");
+      const filename = decodeURIComponent(normalizedSrc.split("/").pop()).normalize("NFC");
       const year = filename.match(/(?:19|20)\d{2}/)?.[0] ?? null;
-      return { src, year, sourceName: filename.replace(/\.[^.]+$/, ""), caption: formatPhotoCaption(filename) };
+      return { src: normalizedSrc, year, sourceName: filename.replace(/\.[^.]+$/, ""), caption: formatPhotoCaption(filename) };
     }).sort((first, second) => (first.year ?? "9999").localeCompare(second.year ?? "9999") || getPhotoCaption(first, currentLanguage).localeCompare(getPhotoCaption(second, currentLanguage)));
 
     const years = [...new Set(allPhotos.map((photo) => photo.year).filter(Boolean))].sort();
